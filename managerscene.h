@@ -1,0 +1,1 @@
+int set_scena(char *nume_scena, char *optiuni);

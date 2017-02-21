@@ -1,0 +1,14 @@
+void init_mat(long unsigned int matrice[4][4]);
+void spawn_random(long unsigned int matrice[4][4]);
+long int procesare_vector(long unsigned int v[4]);
+int compactare_matrice(long unsigned int matrice[4][4], char directie, long int *new_score);
+int free_cells(long unsigned int matrice[4][4]);
+int compactare_posibila(long unsigned int matrice[4][4]);
+void backup_matrix(long unsigned int matrice[4][4],long unsigned int backup[4][4]);
+int fct_comparatie(const void * a, const void * b);
+long int misca_auto(long unsigned int matrice[4][4]);
+void save_mat(long unsigned int matrice_joc[4][4],long int *scor,long unsigned int *scor_total);
+void get_mat(long unsigned int matrice_joc[4][4],long int *scor,long unsigned int *scor_total);
+int get_sec_difference(long int past_time);
+void iesire(int cod);
+int find_valoare(long unsigned int matrice[4][4], long unsigned int valoare);

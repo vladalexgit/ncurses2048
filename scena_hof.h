@@ -1,0 +1,1 @@
+void scena_hof();

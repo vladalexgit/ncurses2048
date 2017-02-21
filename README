@@ -1,0 +1,79 @@
+make run va compila si rula aplicatia
+
+SETARI TERMINAL: - schema 256 de culori
+				 - dimenisune minim 80 linii 24 coloane
+				 - schema de culori a aplicatiei depinde de setarile default ale terminalului
+					astfel aplicatia poate avea inclusiv fundal transparent
+
+ATENTIE!: - make clean sterge fisierele savegame si highscores: utilizati make cleankeepingfiles
+		  - posibil bug la redimenionarea ferestrei in timpul rularii jocului
+
+CONFIGURARI: - in mod retro :) configuratia jocului poate fi modificata editand valorile din config.h
+			 - in acest caz va trebui rulata comanda make clean
+
+			 Exemple de configurari:
+			 - Jocul se termina la atingerea valorii WIN_NUMBER (implicit 2048) (1 = endless)
+			 - Mutarea automata va fi realizata dupa AUTOINTERVAL secunde (implicit 12) definit in fisierul scena_joc.c
+			 - Dupa un numar de secunde AUTO_WARN (implicit 4) utilizatorul este anuntat in cat timp se va realiza o mutare automat
+			 - Pentru a schimba afisarea tabelei de joc se pot edita valorile SPATIERECELULE, INALTIME_CELULA, LATIME_CELULA (implicit 0,5,8)
+			 - Valoarea NEW_GAME (implicit 1) poate fi setata 0 sau 1, in cazul 0 jocul va incepe imediat, iar in cazul 0 va fi asteptata prima apasare pe o tasta, iar dupa aceea va incepe jocul
+
+BONUS:  -functie undo
+		-functie newgame
+		-protectie selectare accidentala new game
+		-functie highscores (meniu principal -> hall of fame)
+		-functie salvare joc si reluare ulterioara
+		-ascii art logo random in meniu
+		-schema de culori a aplicatiei depinde de setarile default ale terminalului
+			astfel aplicatia poate avea inclusiv fundal transparent
+		-warning cu un numar definit de secunde inainte de a muta automat
+		-in cazul setarii valorii NEW_GAME 1 va fi asteptata prima apasare a utilizatorului pe o tasta, iar deabia dupa aceea va incepe jocul
+
+CONTROL: - mutare cu ajutorul tastelor directionale sau WASD sau HJKL
+		 - New Game = tasta N
+		 - Iesire = tasta Q
+		 - Undo = tasta U
+		 - fortare automove = tasta P
+
+FUNCTIONARE (pe scurt) :
+	
+	Functia main lanseaza in executie functia set_scena cu parametrul "scena_meniu".
+	Astfel terminalul este acum controlat de catre meniu.
+
+	Meniul a fost implementat cu ajutorul bibliotecii menu.h din ncurses.
+	Acesta contine o bucla while (conditionata de valoarea 1 sau "infinita") care citeste input-ul de la tastatura si testeaza 2 cazuri: 
+		
+		- cazul utilizarii sagetilor directionale, in care se muta o pozitie in sus sau in jos selectia
+
+		- cazul apasarii tastei Enter, in care se testeaza valoarea etichetei butonului selectat curent si se executa:
+			- schimbarea scenei utilizand managerul de scene definit anterior
+			- iesirea din aplicatie in cazul optiunii quit
+	
+	In cazul selectarii optiunii "New Game" este rulata functia scena_joc. Acum scena_joc controleaza terminalul.
+
+		Functia ruleaza functiile pentru desenarea layout-ului jocului apoi intra intr-o bucla while (bucla principala a jocului)
+
+		Acum functia va astepta input din partea utilizatorului:
+
+			- daca il va primi in intervalul de timp MILIS_TO_WAIT ( implicit 350 ) va
+				- testa valoarea caracterului introdus si va decide ce operatie este ceruta (miscare sus,jos,stanga, dreapta, iesire, undo, etc.) apoi o va executa ruland functiile specifice (majoritatea definite in logica_joc.h)
+				- va testa daca jocul a fost castigat (a fost gasita valoarea WIN_NUMBER) sau nu si va determina daca utilizatorul are un highscore
+				- va redesena layout-ul celulelor conform matrice_joc
+				- daca este cazul va redesena ceasul din partea dreapta-jos a ecranului
+			- daca nu il va primi in intervalul de timp MILIS_TO_WAIT va intra pe ramura else si 
+				va testa diferenta de timp intre rularea precedenta si cea curenta a buclei, determinand astfel:
+					- daca este sau nu cazul sa fie redesenat ceasul din partea dreapta-jos a ecranului
+					- daca au trecut mai mult de AUTOINTERVAL secunde de la ultima mutare va executa 
+						automat o miscare in directia care elibereaza cele mai multe celule prin intermediul functiei misca_auto
+
+		Mutarile si alte operatiuni precum mutarea automata, undo, etc. sunt realizate de catre functiile din logica_joc.h. Pe scurt mutarile sunt realizate astfel: 
+			- functia compactare_matrice primeste ca parametru directia de deplasare
+			- imparte matricea in vectori linie sau vectori coloana
+			- acestia sunt transmisi functiei procesare_vector care intotdeauna va realiza mutarile catre directia primului element al vectorului
+			- apoi matricea este recompusa
+
+	In cazul selectarii optiunii "Continue" este rulata functia scena_joc cu parametrul "resume". Astfel matricea jocului va fi incarcata din fisierul "savegame".
+
+	In cazul selectarii optiunii "Hall of Fame" vor fi afisate numele si scorurile jucatorilor, citite din fisierul "hof"
+
+
